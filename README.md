@@ -1,47 +1,91 @@
+
 # Smart Task Analyzer
 
 An intelligent task management system that scores and prioritizes tasks based on multiple factors including urgency, importance, effort, and dependencies. Built with Django REST Framework and vanilla JavaScript.
 
-## 🛠️ Setup Instructions
 
-**Prerequisites:** Python 3.8+ and a modern browser.
+### Prerequisites
 
-### 1. Backend Setup (Django)
-Navigate to the backend folder and run the following commands:
-cd task-analyzer/backend
+- Python 3.8 or higher
+- A modern web browser
 
-# Create and activate virtual environment
-# On Windows:
-python -m venv venv
-venv\Scripts\activate
-# On Mac/Linux:
-python3 -m venv venv
-source venv/bin/activate
+### Backend Setup
 
-# Install requirements
-pip install -r requirements.txt
+1. **Navigate to the backend directory:**
+   ```bash
+   cd task-analyzer/backend
+   ```
 
-# Run migrations and start server
-python manage.py migrate
-python manage.py runserver
+2. **Create and activate a virtual environment (recommended):**
+   ```bash
+   # On macOS/Linux
+   python3 -m venv venv
+   source venv/bin/activate
 
-The API will be live at http://localhost:8000/api/
+   # On Windows
+   python -m venv venv
+   venv\Scripts\activate
+   ```
 
+3. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-2. Frontend Setup
-Open a new terminal, navigate to the frontend folder, and start a simple server:
-cd task-analyzer/frontend
+4. **Run database migrations:**
+   ```bash
+   python manage.py migrate
+   ```
 
-# Using Python's built-in server to avoid CORS issues
-python -m http.server 8080
+5. **Start the development server:**
+   ```bash
+   python manage.py runserver
+   ```
 
-Then visit http://localhost:8080 in your browser.
+   The API will be available at `http://localhost:8000/api/`
 
+### Frontend Setup
 
-3. Testing
-To run the automated unit tests, navigate to the backend folder and run:
-python manage.py test tasks
+1. **Open another terminal and navigate to the frontend directory:**
+   ```bash
+   cd task-analyzer/frontend
+   ```
 
+2. **Open `index.html` in your browser:**
+   - Use a local server:
+     ```bash
+     # Using Python's built-in server
+     python -m http.server 8080
+     ```
+     Then visit `http://localhost:8080`
+
+### Running Unit Tests
+
+1. **Navigate to the backend directory:**
+   ```bash
+   cd task-analyzer/backend
+   ```
+
+2. **Run:**
+     ```bash
+     python manage.py test tasks
+     ```
+
+### Test Coverage
+
+The test suite includes 13 comprehensive tests:
+
+1. ✅ Urgency scoring (past due, due today, future)
+2. ✅ Importance scoring (valid range, invalid values)
+3. ✅ Effort scoring (quick wins, invalid values)
+4. ✅ Dependency scoring (blocking vs non-blocking)
+5. ✅ Circular dependency detection
+6. ✅ Complete score calculation
+7. ✅ Multiple task sorting
+8. ✅ Strategy differences (fastest_wins, high_impact)
+9. ✅ Top suggestions generation
+10. ✅ Empty task list handling
+11. ✅ Missing field handling
 
 ## 🧠 Algorithm Explanation
 
@@ -64,7 +108,6 @@ I inverted the scoring here: **Lower effort = Higher score.**
 This was the most complex logic. The system builds a graph to identify blocking tasks.
 * **The Logic:** A task that blocks 3 other tasks gets a massive score boost. Even if it isn't due soon, it rises to the top because it is holding up the rest of the project.
 
-
 ### 🎛️ Strategy Configuration
 Different days require different workflows. I implemented a "Strategy" pattern to adjust the weights of the factors above:
 
@@ -74,9 +117,6 @@ Different days require different workflows. I implemented a "Strategy" pattern t
 | **Fastest Wins** | Momentum | Heavily weights **Effort**. Great for clearing backlogs. |
 | **Deadline Driven** | Crisis | Allocates 70% of weight to **Urgency**. |
 | **High Impact** | Planning | Prioritizes **Importance** regardless of deadlines. |
-
----
-
 
 ## 🎨 Design Decisions & Trade-offs
 
@@ -101,101 +141,14 @@ I made several specific architectural choices to keep this project focused on th
     * *Trade-off:* It is harder to explain to a user exactly why a score is "76.5."
     * **Benefit:** The resulting ranking "feels" much more natural and human-like than a simple linear sort.
 
-
-## 📡 API Documentation
-
-### Base URL
-```
-http://localhost:8000/api/
-```
-
-### Endpoints
-
-#### 1. Analyze Tasks
-
-**POST** `/tasks/analyze/`
-
-Analyze and sort a list of tasks by priority.
-
-**Request Body:**
-json
-{
-  "tasks": [
-    {
-      "title": "Fix login bug",
-      "due_date": "2025-11-30",
-      "estimated_hours": 3,
-      "importance": 8,
-      "dependencies": []
-    }
-  ],
-  "strategy": "smart_balance"  // optional
-}
-
-**Response:**
-json
-{
-  "tasks": [
-    {
-      "id": 0,
-      "title": "Fix login bug",
-      "due_date": "2025-11-30",
-      "estimated_hours": 3,
-      "importance": 8,
-      "dependencies": [],
-      "priority_score": 75.5,
-      "score_components": {
-        "urgency": 85.0,
-        "importance": 80.0,
-        "effort": 70.0,
-        "dependencies": 30.0
-      },
-      "explanation": "Due very soon (5 days) • High importance rating"
-    }
-  ],
-  "strategy": "smart_balance",
-  "total_tasks": 1
-}
-
-#### 2. Get Suggestions
-
-**POST** `/tasks/suggest/`
-
-Get top N task suggestions.
-
-**Request Body:**
-json
-{
-  "tasks": [...],
-  "strategy": "smart_balance",
-  "count": 3
-}
-
-**Response:**
-json
-{
-  "suggestions": [
-    {
-      "rank": 1,
-      "title": "Critical bug fix",
-      "priority_score": 95.5,
-      "suggestion_reason": "Rank #1: OVERDUE by 2 days • High importance rating",
-      ...
-    }
-  ],
-  "strategy": "smart_balance",
-  "requested_count": 3,
-  "returned_count": 3
-}
-
 ## ⏱️ Time Breakdown
-Total Time: ~6-7 hours
+Total Time: ~12-13 hours
 
-Backend (3h): Setting up DRF, designing the scoring logic (bulk of the time), and API views.
+Backend (7h): Setting up DRF, designing the scoring logic (bulk of the time), and API views.
 
-Frontend (2h): Building the UI, fetch logic, and dynamic DOM manipulation.
+Frontend (3h): Building the UI, fetch logic, and dynamic DOM manipulation.
 
-Testing (1h): Writing unit tests for the edge cases (especially circular dependencies).
+Testing (2h): Writing unit tests for the edge cases (especially circular dependencies).
 
 Documentation (1h): Writing this README and code comments.
 
@@ -215,3 +168,5 @@ User Accounts: Add JWT authentication so users can save their lists permanently.
 Drag-and-Drop: Move to a React frontend to allow dragging tasks to manually override the algorithm.
 
 Calendar Sync: Import due dates directly from Google Calendar.
+
+
