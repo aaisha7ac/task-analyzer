@@ -2,11 +2,11 @@
   "version": 2,
   "builds": [
     {
-      "src": "backend/task_analyzer/wsgi.py", // <-- Correct Django WSGI path
+      "src": "backend/task_analyzer/wsgi.py",
       "use": "@vercel/python" 
     },
     {
-      "src": "frontend/**", // <-- Correct Static files path
+      "src": "frontend/**",
       "use": "@vercel/static" 
     }
   ],
@@ -17,7 +17,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "backend/task_analyzer/wsgi.py" // <-- Directs all requests to Django
+      "dest": "backend/task_analyzer/wsgi.py"
     }
   ]
 }
