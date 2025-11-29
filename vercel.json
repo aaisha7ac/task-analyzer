@@ -2,8 +2,11 @@
   "version": 2,
   "builds": [
     {
-      "src": "backend/task_analyzer/wsgi.py",
-      "use": "@vercel/python" 
+      "src": "backend/task_analyzer/wsgi.py", 
+      "use": "@vercel/python",
+      "config": {
+        "handler": "application"
+      }
     },
     {
       "src": "frontend/**",
