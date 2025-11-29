@@ -4,32 +4,21 @@ Django settings for task_analyzer project.
 
 from pathlib import Path
 import os
+import dj_database_url # <--- NEW: Required for cloud database connection
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-dev-key-change-in-production'
-
-# --- SECRET_KEY FIX ---
-# Reads the key from Vercel environment variables (SECRET_KEY)
-# The second argument is a fallback for running locally if the env var isn't set.
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dev-key-change-in-production')
+# Reads the key from Vercel environment variables (SECRET_KEY). 
+# The fallback is only for local testing.
+SECRET_KEY = os.getenv('SECRET_KEY', 'insecure-fallback-for-local-dev-only')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
-
-# --- DEBUG FIX ---
-# Reads DEBUG from an environment variable called DJANGO_DEBUG (Vercel sets these as strings)
-# Setting this to False ensures Django runs in production mode on Vercel
+# Reads DEBUG from the DJANGO_DEBUG environment variable.
 DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True' 
-# -------------------------------------------------------------------------------------
 
-# -------------------------------------------------------------------------------------
-# --- ALLOWED_HOSTS FIX ---
-# Allows all hosts, which is necessary for Vercel's dynamic preview URLs (like task-analyzer-git-vercel-...).
+# ALLOWED_HOSTS FIX: Allows all hosts, necessary for Vercel's dynamic preview URLs.
 ALLOWED_HOSTS = ['*']
 
 # Application definition
@@ -76,12 +65,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'task_analyzer.wsgi.application'
 
-# Database
+## ⚠️ CRITICAL DATABASE FIX ⚠️
+# Database configuration for cloud hosting (PostgreSQL/MySQL) using dj-database-url
+# This must replace your SQLite configuration.
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        # Reads the connection string from the Vercel environment variable DATABASE_URL
+        default='sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3'), # Fallback for local
+        conn_max_age=600 # Connection pooling setting
+    )
 }
 
 # Password validation
@@ -113,7 +105,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS settings
-CORS_ALLOW_ALL_ORIGINS = True  # For development only
+CORS_ALLOW_ALL_ORIGINS = True  # Note: Set this to specific origins in a final production environment
 
 # REST Framework settings
 REST_FRAMEWORK = {
