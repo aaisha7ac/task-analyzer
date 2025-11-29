@@ -3,6 +3,7 @@ Django settings for task_analyzer project.
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -10,10 +11,26 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-dev-key-change-in-production'
 
+# --- SECRET_KEY FIX ---
+# Reads the key from Vercel environment variables (SECRET_KEY)
+# The second argument is a fallback for running locally if the env var isn't set.
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dev-key-change-in-production')
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
+
+# --- DEBUG FIX ---
+# Reads DEBUG from an environment variable called DJANGO_DEBUG (Vercel sets these as strings)
+# Setting this to False ensures Django runs in production mode on Vercel
+DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True' 
+# -------------------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------------------
+# --- ALLOWED_HOSTS FIX ---
+# Allows all hosts, which is necessary for Vercel's dynamic preview URLs (like task-analyzer-git-vercel-...).
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
